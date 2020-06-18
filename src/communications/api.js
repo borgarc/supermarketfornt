@@ -1,7 +1,15 @@
 import Vue from 'vue';
 
-export function getProducts() {
-  return Vue.http.get('products/');
+export function getGenres() {
+  return Vue.http.get('genres/');
+}
+
+export function getProducts(genre) {
+  let url = 'products/';
+  if (genre) {
+    url += '?genre=' + genre;
+  }
+  return Vue.http.get(url);
 }
 
 export function patchProduct(id, data) {

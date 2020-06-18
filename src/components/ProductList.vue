@@ -1,40 +1,51 @@
 <template>
   <div>
+    <ProductListFilter v-model="genreSelectedId" :genres="genres" />
     <table id="product-list">
       <tr>
         <th>Nombre del juego</th>
         <th>Precio</th>
+        <th>Genero</th>
         <th>Cambiar el precio</th>
+        <th>Cambiar el genero</th>
       </tr>
       <template v-for="(product, index) in products">
-        <ProductListItem v-model="products[index]" @setMessage="setMessage" :key="product.id" />
+        <ProductListItem v-model="products[index]" :genres="genres" @setMessage="setMessage" :key="product.id" />
       </template>
     </table>
-    <ProductListForm @create="onCreate"/>
+    <ProductListForm :genres="genres" @create="onCreate"/>
     <p>{{message}}</p>
   </div>
 </template>
 
 <script>
-import { getProducts } from '@/communications/api';
+import { getProducts, getGenres } from '@/communications/api';
 import ProductListForm from '@/components/ProductListForm';
 import ProductListItem from '@/components/ProductListItem';
+import ProductListFilter from '@/components/ProductListFilter';
 
 export default {
   name: 'ProductList',
   components: {
     ProductListItem,
     ProductListForm,
+    ProductListFilter,
   },
   data() {
     return {
       products: [],
+      genres: [],
       message: '',
+      genreSelectedId: null,
     }
   },
   created() {
-    getProducts().then(response => {
-      this.products = response.data;
+    Promise.all([
+      getProducts(),
+      getGenres()
+    ]).then(([productResponse, genreResponse]) => {
+      this.genres = genreResponse.data;
+      this.products = productResponse.data;
     });
   },
   methods: {
